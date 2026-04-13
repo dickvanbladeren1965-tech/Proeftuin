@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Sicilië & Zuid-Italië — 10 Dagen Camper Roadtrip</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+  <style>
+    /* ── Reset & Base ─────────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:        #0A0A0A;
+      --bg:         #FFFDF5;
+      --surface:    #FFFFFF;
+      --accent:     #E8441A;    /* terracotta */
+      --accent2:    #2D6A4F;    /* olive green */
+      --accent3:    #2196F3;    /* sky blue */
+      --accent4:    #9C27B0;    /* violet */
+      --sand:       #F0E6C8;
+      --warning-bg: #FFF3CD;
+      --warning-border: #E8A000;
+      --muted:      #6B6B6B;
+      --border:     2px solid #0A0A0A;
+      --border-light: 1px solid rgba(0,0,0,0.1);
+      --shadow:     4px 4px 0 #0A0A0A;
+      --shadow-lg:  6px 6px 0 #0A0A0A;
+      --font-sans:  'Segoe UI', system-ui, sans-serif;
+      --font-mono:  'Consolas', 'Courier New', monospace;
+      --radius:     0;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 16px;
+      line-height: 1.6;
+    }
+
+    h1, h2, h3, h4 {
+      font-weight: 900;
+      line-height: 1.1;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+
+    a { color: var(--accent); }
+    a:hover { text-decoration: none; }
+
+    img { max-width: 100%; display: block; }
+
+    /* ── Layout ───────────────────────────────────────────────── */
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.5rem;
+    }
+
+    .section {
+      padding: 4rem 0;
+      border-bottom: var(--border);
+    }
+
+    .section-title {
+      font-size: clamp(1.8rem, 5vw, 3rem);
+      margin-bottom: 2rem;
+      display: flex;
+      align-items: baseline;
+      gap: 1rem;
+    }
+
+    .section-title .tag {
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: var(--ink);
+      color: var(--bg);
+      padding: 0.25rem 0.5rem;
+      letter-spacing: 0.1em;
+      vertical-align: middle;
+    }
+
+    /* ── Navigation ───────────────────────────────────────────── */
+    .site-nav {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: var(--ink);
+      color: var(--bg);
+      border-bottom: var(--border);
+    }
+
+    .site-nav .container {
+      display: flex;
+      align-items: center;
+      gap: 0;
+      overflow-x: auto;
+      scrollbar-width: none;
+    }
+
+    .site-nav .brand {
+      font-weight: 900;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 1rem 1.5rem 1rem 0;
+      white-space: nowrap;
+      color: var(--bg);
+      text-decoration: none;
+      border-right: var(--border);
+      margin-right: 0.5rem;
+    }
+
+    .site-nav a.nav-link {
+      color: var(--bg);
+      text-decoration: none;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 1rem 0.9rem;
+      white-space: nowrap;
+      border-right: 1px solid rgba(255,255,255,0.15);
+      transition: background 0.1s;
+    }
+
+    .site-nav a.nav-link:hover,
+    .site-nav a.nav-link:focus {
+      background: var(--accent);
+      color: var(--bg);
+    }
+
+    /* ── Hero ─────────────────────────────────────────────────── */
+    .hero {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 5rem 0 4rem;
+      border-bottom: var(--border);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: "🇮🇹";
+      position: absolute;
+      right: 5%;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 12rem;
+      opacity: 0.08;
+      pointer-events: none;
+    }
+
+    .hero-eyebrow {
+      font-size: 0.8rem;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 1rem;
+    }
+
+    .hero h1 {
+      font-size: clamp(2.5rem, 8vw, 5.5rem);
+      line-height: 0.95;
+      margin-bottom: 1.5rem;
+    }
+
+    .hero h1 span { color: var(--accent); }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .hero-meta-item {
+      display: flex;
+      flex-direction: column;
+      border-left: 3px solid var(--accent);
+      padding-left: 0.75rem;
+    }
+
+    .hero-meta-item .label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      color: #aaa;
+    }
+
+    .hero-meta-item .value {
+      font-size: 1.1rem;
+      font-weight: 700;
+    }
+
+    /* ── Route Overview ───────────────────────────────────────── */
+    #route-overview .route-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .stat-card {
+      border: var(--border);
+      padding: 1.25rem;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .stat-card .stat-value {
+      font-size: 2rem;
+      font-weight: 900;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .stat-card .stat-label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 700;
+      color: var(--muted);
+      margin-top: 0.25rem;
+    }
+
+    .route-overview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+
+    .route-segment {
+      border: var(--border);
+      padding: 1.5rem;
+      background: var(--surface);
+    }
+
+    .route-segment h3 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: var(--border);
+    }
+
+    .route-segment ol {
+      padding-left: 1.5rem;
+    }
+
+    .route-segment li {
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    /* ── Map ──────────────────────────────────────────────────── */
+    #map-container {
+      border: var(--border);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+    }
+
+    #interactive-map {
+      height: 520px;
+      width: 100%;
+    }
+
+    .map-legend {
+      border-top: var(--border);
+      padding: 1rem 1.5rem;
+      background: var(--surface);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .legend-dot {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      border: 2px solid var(--ink);
+      flex-shrink: 0;
+    }
+    .legend-dot.accommodation { background: var(--accent); }
+    .legend-dot.ebike { background: var(--accent2); }
+    .legend-dot.beach { background: var(--accent3); }
+    .legend-dot.landmark { background: var(--accent4); }
+    }
+
+    /* ── Daily Itinerary ──────────────────────────────────────── */
+    #daily-itinerary .itinerary-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .day-card {
+      border: var(--border);
+      background: var(--surface);
+      overflow: hidden;
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+
+    .day-card:hover {
+      transform: translate(-3px, -3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .day-card-header {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 0.75rem 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .day-card-header .day-num {
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .day-card-header .day-km {
+      font-size: 0.7rem;
+      background: var(--accent);
+      padding: 0.2rem 0.5rem;
+      font-weight: 700;
+    }
+
+    .day-card-body {
+      padding: 1.25rem;
+    }
+
+    .day-card-body h3 {
+      font-size: 1.05rem;
+      margin-bottom: 0.75rem;
+      line-height: 1.2;
+    }
+
+    .day-card-body p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+      line-height: 1.5;
+    }
+
+    .day-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+      margin-top: 0.75rem;
+    }
+
+    .day-tag {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 0.2rem 0.5rem;
+      border: 1px solid var(--ink);
+    }
+
+    .day-tag.ebike { background: var(--accent2); color: white; border-color: var(--accent2); }
+    .day-tag.beach { background: var(--accent3); color: white; border-color: var(--accent3); }
+    .day-tag.culture { background: var(--accent); color: white; border-color: var(--accent); }
+    .day-tag.nature { background: var(--accent2); color: white; }
+    .day-tag.drive { background: var(--sand); color: var(--ink); }
+    .day-tag.ferry { background: var(--ink); color: var(--bg); }
+
+    /* ── Highlights ───────────────────────────────────────────── */
+    #highlights .highlights-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .highlight-card {
+      border: var(--border);
+      padding: 1.5rem;
+      background: var(--surface);
+      position: relative;
+    }
+
+    .highlight-card::before {
+      content: attr(data-icon);
+      font-size: 2.5rem;
+      display: block;
+      margin-bottom: 0.75rem;
+    }
+
+    .highlight-card h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .highlight-card p {
+      font-size: 0.875rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .highlight-card .rating {
+      margin-top: 0.75rem;
+      font-size: 0.7rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--accent);
+    }
+
+    /* ── Practical Tips ───────────────────────────────────────── */
+    #practical-tips .tips-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .tip-block {
+      border: var(--border);
+      padding: 1.5rem;
+      background: var(--surface);
+    }
+
+    .tip-block h3 {
+      font-size: 0.85rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: var(--border);
+    }
+
+    .tip-block ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .tip-block ul li {
+      font-size: 0.875rem;
+      padding: 0.35rem 0;
+      padding-left: 1.2rem;
+      position: relative;
+      line-height: 1.4;
+      color: var(--muted);
+    }
+
+    .tip-block ul li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--accent);
+      font-weight: 700;
+    }
+
+    .tip-block.warning {
+      background: var(--warning-bg);
+      border-color: var(--warning-border);
+    }
+
+    .tip-block.warning h3::before { content: "⚠ "; }
+
+    /* ── E-bike Section ───────────────────────────────────────── */
+    #ebike-routes .ebike-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .ebike-route {
+      border: var(--border);
+      padding: 1.25rem 1.5rem;
+      background: var(--surface);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .ebike-route .route-icon {
+      font-size: 2rem;
+    }
+
+    .ebike-route h3 {
+      font-size: 0.95rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .ebike-route p {
+      font-size: 0.8rem;
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .ebike-route .route-meta {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .ebike-route .route-meta .dist {
+      font-size: 1.5rem;
+      font-weight: 900;
+      color: var(--accent2);
+      line-height: 1;
+    }
+
+    .ebike-route .route-meta .level {
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    /* ── Footer ───────────────────────────────────────────────── */
+    .site-footer {
+      background: var(--ink);
+      color: var(--bg);
+      padding: 3rem 0;
+      border-top: var(--border);
+    }
+
+    .site-footer .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 2rem;
+      flex-wrap: wrap;
+    }
+
+    .site-footer h4 { font-size: 0.8rem; margin-bottom: 0.75rem; color: var(--accent); }
+    .site-footer p, .site-footer li { font-size: 0.8rem; color: var(--muted); line-height: 1.8; }
+    .site-footer ul { list-style: none; }
+
+    /* ── Responsive ───────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .hero { padding: 3rem 0 2.5rem; }
+      .hero::before { display: none; }
+      .route-overview-grid { grid-template-columns: 1fr; }
+      .ebike-route { grid-template-columns: auto 1fr; }
+      .ebike-route .route-meta { display: none; }
+      .site-footer .container { flex-direction: column; gap: 1.5rem; }
+      #daily-itinerary .itinerary-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 480px) {
+      .section { padding: 2.5rem 0; }
+      .hero h1 { font-size: 2.2rem; }
+      #interactive-map { height: 320px; }
+      .hero-meta { gap: 1rem; }
+    }
+
+    @media print {
+      .site-nav, .hero::before { display: none; }
+      .section { padding: 1.5rem 0; border-color: var(--border-light); }
+      #interactive-map { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────────────────────── -->
+<nav class="site-nav" aria-label="Hoofdnavigatie">
+  <div class="container">
+    <a href="#top" class="brand">Italië 🚐</a>
+    <a href="#route-overview"  class="nav-link">Route</a>
+    <a href="#map-section"     class="nav-link">Kaart</a>
+    <a href="#daily-itinerary" class="nav-link">Dagboek</a>
+    <a href="#ebike-routes"    class="nav-link">E-bike</a>
+    <a href="#highlights"      class="nav-link">Highlights</a>
+    <a href="#practical-tips"  class="nav-link">Tips</a>
+  </div>
+</nav>
+
+<!-- ── Hero ───────────────────────────────────────────────────────────────── -->
+<header id="top" class="hero">
+  <div class="container">
+    <p class="hero-eyebrow">Camper Roadtrip Gids</p>
+    <h1>Sicilië &amp;<br><span>Zuid-Italië</span></h1>
+    <p style="font-size:1.1rem;max-width:560px;margin-top:1rem;opacity:0.85;">
+      Tien dagen per camper langs vulkanen, barokke steden, azuurblauwe kust en eindeloze olijfgaarden. Van Napels tot Palermo — en alles daartussen.
+    </p>
+    <div class="hero-meta">
+      <div class="hero-meta-item">
+        <span class="label">Duur</span>
+        <span class="value">10 Dagen</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Afstand</span>
+        <span class="value">~1.850 km</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Start</span>
+        <span class="value">Napels</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Einde</span>
+        <span class="value">Palermo</span>
+      </div>
+      <div class="hero-meta-item">
+        <span class="label">Seizoen</span>
+        <span class="value">Mei – Oktober</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- ── Route Overview ─────────────────────────────────────────────────────── -->
+<section id="route-overview" class="section">
+  <div class="container">
+    <h2 class="section-title">Route Overzicht <span class="tag">10 Stops</span></h2>
+
+    <div class="route-stats">
+      <div class="stat-card">
+        <div class="stat-value">1.850</div>
+        <div class="stat-label">km totaal</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">10</div>
+        <div class="stat-label">Nachten</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">4</div>
+        <div class="stat-label">Regio's</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">2</div>
+        <div class="stat-label">Vulkanen</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">1</div>
+        <div class="stat-label">Veerboot</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-value">6+</div>
+        <div class="stat-label">E-bike routes</div>
+      </div>
+    </div>
+
+    <div class="route-overview-grid">
+      <div class="route-segment">
+        <h3>Vasteland (Dag 1–4)</h3>
+        <ol>
+          <li><strong>Dag 1</strong> — Napels: Vesuvius &amp; Pompeii</li>
+          <li><strong>Dag 2</strong> — Amalfikust: Positano tot Ravello</li>
+          <li><strong>Dag 3</strong> — Calabrië: Tropea &amp; de Tyrrheense kust</li>
+          <li><strong>Dag 4</strong> — Villa San Giovanni → Messina (veerboot)</li>
+        </ol>
+      </div>
+      <div class="route-segment">
+        <h3>Sicilië (Dag 4–10)</h3>
+        <ol>
+          <li><strong>Dag 4/5</strong> — Etna: Nicolosi basiskamp</li>
+          <li><strong>Dag 5</strong> — Taormina &amp; Riviera Ionica</li>
+          <li><strong>Dag 6</strong> — Siracusa &amp; Noto (barok)</li>
+          <li><strong>Dag 7</strong> — Valle dei Templi, Agrigento</li>
+          <li><strong>Dag 8</strong> — Scala dei Turchi &amp; Marsala</li>
+          <li><strong>Dag 9</strong> — Trapani &amp; Erice</li>
+          <li><strong>Dag 10</strong> — Palermo: aankomst &amp; afscheid</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Interactive Map ────────────────────────────────────────────────────── -->
+<section id="map-section" class="section">
+  <div class="container">
+    <h2 class="section-title">Interactieve Kaart <span class="tag">Leaflet</span></h2>
+    <p style="margin-bottom:1.5rem;color:var(--muted);font-size:0.9rem;">
+      Klik op een marker voor dag-informatie. De rode lijn toont de rijroute; groen zijn aanbevolen e-bikeroutes.
+    </p>
+    <div id="map-container">
+      <div id="interactive-map"></div>
+      <div class="map-legend">
+        <div class="legend-item">
+          <div class="legend-dot accommodation"></div> Overnachting
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot ebike"></div> E-bike start
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot beach"></div> Strand / Baai
+        </div>
+        <div class="legend-item">
+          <div class="legend-dot landmark"></div> Bezienswaardigheid
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Daily Itinerary ────────────────────────────────────────────────────── -->
+<section id="daily-itinerary" class="section">
+  <div class="container">
+    <h2 class="section-title">Dagelijkse Reisplanning <span class="tag">10 Dagen</span></h2>
+    <div class="itinerary-grid">
+
+      <article class="day-card" id="dag-1">
+        <div class="day-card-header">
+          <span class="day-num">Dag 1</span>
+          <span class="day-km">~30 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Napels → Pompeii → Vesuvius</h3>
+          <p>Aankomst in Napels, camper ophalen. 's Ochtends vroeg naar Pompeii (vóór 9u voor minder drukte). Middag: beklim de Vesuvius kraterrand (2-uur hike). Overnachting op camperplek bij Ercolano.</p>
+          <div class="day-tags">
+            <span class="day-tag culture">Cultuur</span>
+            <span class="day-tag nature">Natuur</span>
+            <span class="day-tag drive">Rijdag</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-2">
+        <div class="day-card-header">
+          <span class="day-num">Dag 2</span>
+          <span class="day-km">~80 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Amalfikust: Positano – Ravello</h3>
+          <p>Vroeg vertrek langs de SS163 kustweg. Koffie in Positano. Wandeling Sentiero degli Dei (pad der goden, 8 km). Lunch in Amalfi. Avond in Ravello voor de tuinen van Villa Rufolo. Parkeer bij Minori.</p>
+          <div class="day-tags">
+            <span class="day-tag beach">Strand</span>
+            <span class="day-tag nature">Natuur</span>
+            <span class="day-tag ebike">E-bike</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-3">
+        <div class="day-card-header">
+          <span class="day-num">Dag 3</span>
+          <span class="day-km">~220 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Calabrië: Tropea &amp; Kust</h3>
+          <p>Lange rijdag langs de Tyrrheense kust richting Calabrië. Lunch en middagstop in Tropea — spectaculaire klifrots met strandzicht. Aperitivo bij zonsondergang op de promenade. Slaap op camperplaats bij Pizzo.</p>
+          <div class="day-tags">
+            <span class="day-tag beach">Strand</span>
+            <span class="day-tag drive">Rijdag</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-4">
+        <div class="day-card-header">
+          <span class="day-num">Dag 4</span>
+          <span class="day-km">~120 km + boot</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Villa San Giovanni → Veerboot → Etna</h3>
+          <p>Ochtend rijden naar Villa San Giovanni. Veerboot (30 min) naar Messina — boek vooraf bij Caronte &amp; Tourist. Aankomst Sicilië! Direct richting Etna. Overnachting bij Nicolosi (1.000m hoogte).</p>
+          <div class="day-tags">
+            <span class="day-tag ferry">Veerboot</span>
+            <span class="day-tag drive">Rijdag</span>
+            <span class="day-tag nature">Natuur</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-5">
+        <div class="day-card-header">
+          <span class="day-num">Dag 5</span>
+          <span class="day-km">~60 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Etna Beklimming &amp; Taormina</h3>
+          <p>Vroeg op naar Etna Noord (Rifugio Sapienza). Kabelbaanrit + gids naar 3.000m (optioneel). Middag: Taormina bezoek — Grieks theater met Etna-backdrop. Zwemmen bij Isola Bella. Camperplaats bij Giardini Naxos.</p>
+          <div class="day-tags">
+            <span class="day-tag nature">Vulkaan</span>
+            <span class="day-tag culture">Cultuur</span>
+            <span class="day-tag beach">Strand</span>
+            <span class="day-tag ebike">E-bike</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-6">
+        <div class="day-card-header">
+          <span class="day-num">Dag 6</span>
+          <span class="day-km">~95 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Siracusa &amp; Noto Barok</h3>
+          <p>Siracusa: Ortigia-eiland wandeling, Duomo, Arethusa fontein. Middag: Noto — UNESCO barokstad, gelato bij Caffè Sicilia. Zonsondergang bij Vendicari natuurreservaat. Nacht bij Ispica kust.</p>
+          <div class="day-tags">
+            <span class="day-tag culture">UNESCO</span>
+            <span class="day-tag beach">Strand</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-7">
+        <div class="day-card-header">
+          <span class="day-num">Dag 7</span>
+          <span class="day-km">~140 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Agrigento: Valle dei Templi</h3>
+          <p>Rijdag naar zuidkust. Vroeg namiddagbezoek aan de Tempelvallei — 7 Griekse tempels uit 500 v.Chr. Goudkleurig licht bij zonsondergang. Overnachting op officiële camperplaats aan de rand van Agrigento.</p>
+          <div class="day-tags">
+            <span class="day-tag culture">UNESCO</span>
+            <span class="day-tag drive">Rijdag</span>
+            <span class="day-tag ebike">E-bike</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-8">
+        <div class="day-card-header">
+          <span class="day-num">Dag 8</span>
+          <span class="day-km">~110 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Scala dei Turchi &amp; Marsala</h3>
+          <p>Ochtend: Scala dei Turchi — witte krijtrotsen bij Realmonte, spectaculair bij laagwater. Zout-meer van Marsala en de wijnroute. Proeverij bij Florio of Pellegrino. Nacht bij Mazara del Vallo.</p>
+          <div class="day-tags">
+            <span class="day-tag beach">Kust</span>
+            <span class="day-tag nature">Natuur</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-9">
+        <div class="day-card-header">
+          <span class="day-num">Dag 9</span>
+          <span class="day-km">~70 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Trapani &amp; Erice</h3>
+          <p>Trapani: vismarkt, saltpannen met windmolens bij zonsopgang. Kabelbaan omhoog naar Erice — middeleeuws bergstadje op 750m. Prachtig panorama over het westkust. Laatste avond bij Scopello baai.</p>
+          <div class="day-tags">
+            <span class="day-tag culture">Middeleeuws</span>
+            <span class="day-tag nature">Panorama</span>
+            <span class="day-tag beach">Strand</span>
+            <span class="day-tag ebike">E-bike</span>
+          </div>
+        </div>
+      </article>
+
+      <article class="day-card" id="dag-10">
+        <div class="day-card-header">
+          <span class="day-num">Dag 10</span>
+          <span class="day-km">~100 km</span>
+        </div>
+        <div class="day-card-body">
+          <h3>Palermo: Aankomst &amp; Afscheid</h3>
+          <p>Rijden naar Palermo langs de noordkust. Laatste dag: Ballarò markt, Palatijnse Kapel, streetfood arancini en panelle. Camper inleveren. Vliegtuig of extra nacht in hotel voor een waardige afsluiting.</p>
+          <div class="day-tags">
+            <span class="day-tag culture">Cultuur</span>
+            <span class="day-tag culture">Streetfood</span>
+          </div>
+        </div>
+      </article>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── E-bike Routes ───────────────────────────────────────────────────────── -->
+<section id="ebike-routes" class="section">
+  <div class="container">
+    <h2 class="section-title">E-bike Routes <span class="tag">6 Ritten</span></h2>
+    <div class="ebike-list">
+
+      <div class="ebike-route">
+        <span class="route-icon">🌋</span>
+        <div>
+          <h3>Etna Circulaire Route</h3>
+          <p>Rifugio Sapienza → Piano Provenzana → Linguaglossa. Lavavelden, berkenbossen, spectaculaire kraterzichten.</p>
+        </div>
+        <div class="route-meta">
+          <div class="dist">42 km</div>
+          <div class="level">Zwaar</div>
+        </div>
+      </div>
+
+      <div class="ebike-route">
+        <span class="route-icon">🏖️</span>
+        <div>
+          <h3>Amalfikust Panoramapad</h3>
+          <p>Vanaf Minori langs Sentiero degli Dei naar Nocelle. Adembenemende kliffentrotsen boven de zee. E-bike nodig voor de klim.</p>
+        </div>
+        <div class="route-meta">
+          <div class="dist">28 km</div>
+          <div class="level">Middel</div>
+        </div>
+      </div>
+
+      <div class="ebike-route">
+        <span class="route-icon">🏛️</span>
+        <div>
+          <h3>Valle dei Templi Rondrit</h3>
+          <p>Agrigento → Tempels → Kathedraal → Terug. Perfect bij vroege ochtend of gouden uur. Weinig klimwerk, veel beelden.</p>
+        </div>
+        <div class="route-meta">
+          <div class="dist">18 km</div>
+          <div class="level">Makkelijk</div>
+        </div>
+      </div>
+
+      <div class="ebike-route">
+        <span class="route-icon">🧂</span>
+        <div>
+          <h3>Marsala Zoutpannen Route</h3>
+          <p>Via Salina di Marsala langs roze zoutmeren en witte windmolens naar Mothia eiland. Flat, schilderachtig, zonsondergang aanrader.</p>
+        </div>
+        <div class="route-meta">
+          <div class="dist">25 km</div>
+          <div class="level">Makkelijk</div>
+        </div>
+      </div>
+
+      <div class="ebike-route">
+        <span class="route-icon">🏔️</span>
+        <div>
+          <h3>Erice Bergklim</h3>
+          <p>Trapani → Erice top via Strada Provinciale 16. Steile klim (700m hoogteverschil), maar e-bike maakt het haalbaar. Fantastisch uitzicht.</p>
+        </div>
+        <div class="route-meta">
+          <div class="dist">22 km</div>
+          <div class="level">Zwaar</div>
+        </div>
+      </div>
+
+      <div class="ebike-route">
+        <span class="route-icon">🌊</span>
+        <div>
+          <h3>Taormina Kustroute</h3>
+          <p>Giardini Naxos → Taormina → Isola Bella → Terug. Combineert strand, historisch centrum en Etna-uitzicht. Ideale halve dag rit.</p>
+        </div>
+        <div class="route-meta">
+          <div class="dist">16 km</div>
+          <div class="level">Makkelijk</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Highlights ─────────────────────────────────────────────────────────── -->
+<section id="highlights" class="section">
+  <div class="container">
+    <h2 class="section-title">Must-See Highlights <span class="tag">Top 8</span></h2>
+    <div class="highlights-grid">
+
+      <div class="highlight-card" data-icon="🌋">
+        <h3>Etna &amp; Vesuvius</h3>
+        <p>Twee actieve vulkanen op één trip. Etna is de hoogste en actiefste in Europa. Rook, lavakuilen en maanlandschappen.</p>
+        <div class="rating">★★★★★ Niet missen</div>
+      </div>
+
+      <div class="highlight-card" data-icon="🏛️">
+        <h3>Valle dei Templi</h3>
+        <p>Zeven Griekse tempels uit 500 v.Chr., beter bewaard dan in Griekenland zelf. UNESCO Werelderfgoed. Schitterend bij zonsondergang.</p>
+        <div class="rating">★★★★★ UNESCO</div>
+      </div>
+
+      <div class="highlight-card" data-icon="🏙️">
+        <h3>Taormina</h3>
+        <p>Het mooiste dorp van Sicilië: Grieks amfitheater met Etna-backdrop, chique winkels, eeuwenoude tramways en Isola Bella strand.</p>
+        <div class="rating">★★★★★ Iconic</div>
+      </div>
+
+      <div class="highlight-card" data-icon="🤍">
+        <h3>Scala dei Turchi</h3>
+        <p>Verbluffende witte krijtrotsen bij Realmonte, gevormd door zee en wind. Zwemmen in azuurblauwe water aan de voet van de rotsen.</p>
+        <div class="rating">★★★★☆ Aanrader</div>
+      </div>
+
+      <div class="highlight-card" data-icon="🍋">
+        <h3>Amalfikust</h3>
+        <p>Spectaculaire klifweg met citroenboomgaarden, pastelkleurige huizen en bespiegelend blauw water. Rijden is indrukwekkend maar erg smal.</p>
+        <div class="rating">★★★★★ Klassiek</div>
+      </div>
+
+      <div class="highlight-card" data-icon="🏺">
+        <h3>Siracusa – Ortigia</h3>
+        <p>Eilandje gevuld met 2.700 jaar geschiedenis. Caravaggio-altaarstuk, Arethusa bron, verse vis op de Mercato della Ballarò.</p>
+        <div class="rating">★★★★☆ Verborgen Parel</div>
+      </div>
+
+      <div class="highlight-card" data-icon="🌅">
+        <h3>Marsala Zoutpannen</h3>
+        <p>Roze-tintige vijvers met windmolens bij zonsondergang. Een van de mooiste fotoplekken van Sicilië. Rustig, uniek, tijdloos.</p>
+        <div class="rating">★★★★★ Fotogeniek</div>
+      </div>
+
+      <div class="highlight-card" data-icon="🎭">
+        <h3>Palermo Streetfood</h3>
+        <p>Ballarò markt, arancini, pane ca meusa, cannoli vers bij Pasticceria Cappello. Palermo's streetfood is beroemd — het waardig afsluiten van de trip.</p>
+        <div class="rating">★★★★★ Foodie</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Practical Tips ─────────────────────────────────────────────────────── -->
+<section id="practical-tips" class="section">
+  <div class="container">
+    <h2 class="section-title">Praktische Tips <span class="tag">Camper</span></h2>
+    <div class="tips-grid">
+
+      <div class="tip-block">
+        <h3>Camperplaatsen &amp; Parking</h3>
+        <ul>
+          <li>App: Park4Night of Campercontact voor veldjes</li>
+          <li>Sicilië heeft veel gratis sosta-plekken</li>
+          <li>In steden: gebruik P+R, nooit in ZTL rijden</li>
+          <li>Boek veerboot minimaal 48u vooraf (Caronte &amp; Tourist)</li>
+          <li>Reserveer populaire camperplekken in hoogseizoen</li>
+        </ul>
+      </div>
+
+      <div class="tip-block">
+        <h3>E-bike Advies</h3>
+        <ul>
+          <li>Huur lokaal of neem eigen e-bike mee op camper</li>
+          <li>Laad accu elke avond op (230V aansluiting nodig)</li>
+          <li>Helm wettelijk verplicht in Italië</li>
+          <li>Strava of Komoot voor offline kaarten</li>
+          <li>Reservebatterij aanraden voor Etna-route</li>
+        </ul>
+      </div>
+
+      <div class="tip-block">
+        <h3>Rijden in Italië &amp; Sicilië</h3>
+        <ul>
+          <li>Italianen rijden agressief — blijf kalm en voorspelbaar</li>
+          <li>Siciliaanse wegen zijn smal en slecht onderhouden</li>
+          <li>ZTL zones herkennen: rond bord met camera-pictogram</li>
+          <li>Benzine duurder op autostrade — tankstations voor snelweg</li>
+          <li>GPS vertrouwen maar lokale Google Maps altijd controleren</li>
+        </ul>
+      </div>
+
+      <div class="tip-block warning">
+        <h3>Let Op: Drukke Periodes</h3>
+        <ul>
+          <li>Juli–Augustus extreem heet (35–42°C) en druk</li>
+          <li>Etna: bij slechte weersomstandigheden gesloten voor publiek</li>
+          <li>Amalfikust: campers &gt;7m soms verboden op SS163</li>
+          <li>Boek veerboot 3–4 dagen vooraf in hoogseizoen</li>
+        </ul>
+      </div>
+
+      <div class="tip-block">
+        <h3>Budget &amp; Kosten</h3>
+        <ul>
+          <li>Gemiddeld €80–130/dag voor 2 personen (excl. brandstof)</li>
+          <li>Brandstof: ~€1,85/L diesel (2024)</li>
+          <li>Pompeii: €18 p.p. — boek online vooraf</li>
+          <li>Etna kabelbaan: €35 p.p. retour</li>
+          <li>Veerboot Villa San Giovanni–Messina: ~€25–40 per camper</li>
+        </ul>
+      </div>
+
+      <div class="tip-block">
+        <h3>Eten &amp; Drinken</h3>
+        <ul>
+          <li>Arancini, granita, cannoli: Sicilische must-eats</li>
+          <li>Marsala wijn: proef ter plaatse bij Florio</li>
+          <li>Verse vis op lokale markten (Siracusa, Palermo)</li>
+          <li>Ontbijt in bar: koffie + cornetto max. €2,50</li>
+          <li>Supermercato Conad of Esselunga voor voorraad</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────────────────── -->
+<footer class="site-footer">
+  <div class="container">
+    <div>
+      <h4>Sicilië &amp; Zuid-Italië Gids</h4>
+      <p>10 dagen camper roadtrip<br>Napels → Palermo</p>
+    </div>
+    <div>
+      <h4>Secties</h4>
+      <ul>
+        <li><a href="#route-overview" style="color: var(--muted);">Route Overzicht</a></li>
+        <li><a href="#map-section" style="color: var(--muted);">Interactieve Kaart</a></li>
+        <li><a href="#daily-itinerary" style="color: var(--muted);">Dagplanning</a></li>
+        <li><a href="#ebike-routes" style="color: var(--muted);">E-bike Routes</a></li>
+        <li><a href="#highlights" style="color: var(--muted);">Highlights</a></li>
+        <li><a href="#practical-tips" style="color: var(--muted);">Praktische Tips</a></li>
+      </ul>
+    </div>
+    <div>
+      <h4>Handige Links</h4>
+      <ul>
+        <li><a href="https://www.park4night.com" style="color: var(--muted);" target="_blank" rel="noopener">Park4Night</a></li>
+        <li><a href="https://www.carontetourist.it" style="color: var(--muted);" target="_blank" rel="noopener">Caronte &amp; Tourist (veerboot)</a></li>
+        <li><a href="https://ticketing.fondazionecolosseo.it" style="color: var(--muted);" target="_blank" rel="noopener">Pompeii tickets</a></li>
+      </ul>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Leaflet Map Script ──────────────────────────────────────────────────── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN/WLcE=" crossorigin=""></script>
+<script>
+(function () {
+  'use strict';
+
+  // Waypoints: [lat, lng, label, day, color, description]
+  var waypoints = [
+    [40.8518, 14.2681, 'Napels',          'Dag 1',  '#E8441A', 'Vertrekpunt. Pompeii & Vesuvius'],
+    [40.6280, 14.6027, 'Positano',         'Dag 2',  '#2196F3', 'Amalfikust — Sentiero degli Dei'],
+    [38.6760, 16.0261, 'Tropea',           'Dag 3',  '#2196F3', 'Klifrots boven de zee'],
+    [38.2173, 15.5500, 'Villa S. Giovanni','Dag 4',  '#9C27B0', 'Veerboot naar Sicilië'],
+    [37.6153, 15.0122, 'Nicolosi (Etna)',  'Dag 4/5','#E8441A', 'Etna basiskamp 1.000m'],
+    [37.8518, 15.2869, 'Taormina',         'Dag 5',  '#E8441A', 'Grieks theater + Isola Bella'],
+    [37.0692, 15.2867, 'Siracusa',         'Dag 6',  '#E8441A', 'Ortigia-eiland, Duomo'],
+    [37.3196, 13.5855, 'Agrigento',        'Dag 7',  '#E8441A', 'Valle dei Templi — UNESCO'],
+    [37.4897, 13.5114, 'Scala dei Turchi', 'Dag 8',  '#2196F3', 'Witte krijtrotsen'],
+    [37.7884, 12.4357, 'Marsala',          'Dag 8',  '#2D6A4F', 'Zoutpannen & wijn'],
+    [37.8660, 12.5364, 'Trapani',          'Dag 9',  '#E8441A', 'Vismarkt & zoutpannen'],
+    [37.8760, 12.5880, 'Erice',            'Dag 9',  '#2D6A4F', 'Middeleeuws bergstadje'],
+    [38.1157, 13.3615, 'Palermo',          'Dag 10', '#E8441A', 'Eindbestemming — Ballarò markt']
+  ];
+
+  // E-bike routes start points
+  var ebikePoints = [
+    [37.6900, 14.9900, 'E-bike: Etna circulaire (42 km)'],
+    [40.6500, 14.6200, 'E-bike: Amalfi Sentiero degli Dei (28 km)'],
+    [37.3100, 13.5700, 'E-bike: Tempelvallei (18 km)'],
+    [37.7900, 12.4500, 'E-bike: Marsala zoutpannen (25 km)'],
+    [37.8660, 12.5364, 'E-bike: Erice bergklim (22 km)'],
+    [37.8300, 15.2700, 'E-bike: Taormina kust (16 km)']
+  ];
+
+  var rootStyle = getComputedStyle(document.documentElement);
+  var accent = rootStyle.getPropertyValue('--accent').trim();
+  var accent2 = rootStyle.getPropertyValue('--accent2').trim();
+  var accent3 = rootStyle.getPropertyValue('--accent3').trim();
+  var ink = rootStyle.getPropertyValue('--ink').trim();
+  var muted = rootStyle.getPropertyValue('--muted').trim();
+  var white = '#fff';
+
+  var mapEl = document.getElementById('interactive-map');
+  if (!mapEl) { return; }
+
+  var tripMap = L.map('interactive-map', { scrollWheelZoom: false }).setView([38.5, 14.5], 6);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    maxZoom: 18
+  }).addTo(tripMap);
+
+  // Route polyline
+  var routeCoords = waypoints.map(function (w) { return [w[0], w[1]]; });
+  L.polyline(routeCoords, { color: accent, weight: 3, opacity: 0.7, dashArray: '8 4' }).addTo(tripMap);
+
+  // Overnight markers
+  waypoints.forEach(function (w, i) {
+    var icon = L.divIcon({
+      className: '',
+      html: '<div style="width:28px;height:28px;border-radius:50%;background:' + w[4] + ';border:2px solid ' + ink + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;color:' + white + ';box-shadow:2px 2px 0 ' + ink + ';">' + (i + 1) + '</div>',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+    L.marker([w[0], w[1]], { icon: icon })
+      .addTo(tripMap)
+      .bindPopup('<strong>' + w[4 > 0 ? 2 : 2] + '</strong>', { maxWidth: 200 })
+      .bindPopup(
+        '<div style="font-family:system-ui;padding:4px;">' +
+        '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:' + muted + ';margin-bottom:4px;">' + w[3] + '</div>' +
+        '<div style="font-size:14px;font-weight:900;margin-bottom:4px;">' + w[2] + '</div>' +
+        '<div style="font-size:12px;color:' + ink + ';">' + w[5] + '</div>' +
+        '</div>'
+      );
+  });
+
+  // E-bike markers
+  ebikePoints.forEach(function (eb) {
+    var ebIcon = L.divIcon({
+      className: '',
+      html: '<div style="width:22px;height:22px;border-radius:50%;background:' + accent2 + ';border:2px solid ' + ink + ';display:flex;align-items:center;justify-content:center;font-size:10px;box-shadow:2px 2px 0 ' + ink + ';">🚴</div>',
+      iconSize: [22, 22],
+      iconAnchor: [11, 11]
+    });
+    L.marker([eb[0], eb[1]], { icon: ebIcon })
+      .addTo(tripMap)
+      .bindPopup('<div style="font-family:system-ui;font-size:12px;padding:4px;">' + eb[2] + '</div>');
+  });
+
+  // Enable scroll zoom on click
+  tripMap.on('click', function () { tripMap.scrollWheelZoom.enable(); });
+  tripMap.on('mouseout', function () { tripMap.scrollWheelZoom.disable(); });
+
+}());
+</script>
+
+</body>
+</html>
